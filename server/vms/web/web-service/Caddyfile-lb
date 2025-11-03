@@ -1,0 +1,31 @@
+{
+    log {
+        level INFO
+    }
+    local_certs
+}
+
+www.gponlab.local {
+    tls internal
+    encode zstd gzip
+    
+    reverse_proxy http://web-server-1.gponlab.local:80 http://web-server-2.gponlab.local:80 {
+        lb_policy round_robin
+        
+        health_uri /health
+        health_interval 5s
+        health_timeout 3s
+        health_status 2xx
+        
+        header_up X-Real-IP {remote_host}
+        header_up X-Forwarded-For {remote_host}
+        header_up X-Forwarded-Proto {scheme}
+    }
+    
+    log {
+        output file /var/log/caddy/access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}

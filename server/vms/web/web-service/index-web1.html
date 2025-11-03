@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPON Lab - Servidor 1</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 900px;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .status {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+        
+        .server-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            margin-left: 10px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+        
+        .info-card {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .info-card strong {
+            display: block;
+            color: #667eea;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        
+        .info-card span {
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .services {
+            margin: 30px 0;
+        }
+        
+        .services h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .services ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .services li {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 3px solid #4CAF50;
+        }
+        
+        .services li:before {
+            content: "- ";
+            color: #4CAF50;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .protocol-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border: 2px solid #2196F3;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: #999;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>GPON Lab <span class="server-badge">WEB1</span></h1>
+        <p class="subtitle">Infraestructura de Red Academica con QUIC/HTTP3</p>
+        
+        <div class="status">
+            Servidor Principal Activo
+        </div>
+        
+        <div class="info-grid">
+            <div class="info-card">
+                <strong>Servidor</strong>
+                <span>web-server-1.gponlab.local</span>
+            </div>
+            <div class="info-card">
+                <strong>Direccion IPv4</strong>
+                <span>192.168.50.10</span>
+            </div>
+            <div class="info-card">
+                <strong>Direccion IPv6</strong>
+                <span>2001:db8:50::10</span>
+            </div>
+            <div class="info-card">
+                <strong>Red</strong>
+                <span>VLAN 50 - GPON</span>
+            </div>
+        </div>
+        
+        <div class="services">
+            <h2>Servicios Disponibles</h2>
+            <ul>
+                <li>Servidor Web con Caddy + QUIC</li>
+                <li>Soporte HTTP/3 (h3)</li>
+                <li>Alta disponibilidad con failover</li>
+                <li>Health checks automaticos</li>
+                <li>Load balancing con proxy inverso</li>
+                <li>Monitoreo en tiempo real</li>
+            </ul>
+        </div>
+        
+        <div class="protocol-info" id="protocol-info">
+            <strong>Informacion de Protocolo:</strong>
+            <p id="protocol-details">Detectando protocolo...</p>
+        </div>
+        
+        <div class="footer">
+            <p>Proyecto Academico - Implementacion GPON</p>
+            <p>Universidad - 2025</p>
+        </div>
+    </div>
+    
+    <script>
+        if (window.performance && performance.getEntriesByType) {
+            const navTiming = performance.getEntriesByType('navigation')[0];
+            if (navTiming && navTiming.nextHopProtocol) {
+                const protocol = navTiming.nextHopProtocol;
+                let protocolName = protocol;
+                let protocolColor = '#2196F3';
+                
+                if (protocol === 'h3' || protocol === 'h3-29' || protocol === 'h3-32') {
+                    protocolName = 'HTTP/3 sobre QUIC (UDP)';
+                    protocolColor = '#4CAF50';
+                } else if (protocol === 'h2') {
+                    protocolName = 'HTTP/2 (TCP)';
+                } else if (protocol === 'http/1.1') {
+                    protocolName = 'HTTP/1.1 (TCP)';
+                }
+                
+                document.getElementById('protocol-details').innerHTML = 
+                    '<span style="color: ' + protocolColor + '; font-weight: bold;">' + 
+                    protocolName + '</span><br>' +
+                    '<small>Protocolo de red: ' + protocol + '</small>';
+            }
+        }
+        
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (window.performance) {
+                    const loadTime = performance.timing.loadEventEnd - performance.timing.navigationStart;
+                    document.getElementById('protocol-info').innerHTML += 
+                        '<br><small>Tiempo de carga: ' + loadTime + 'ms</small>';
+                }
+            }, 100);
+        });
+    </script>
+</body>
+</html>

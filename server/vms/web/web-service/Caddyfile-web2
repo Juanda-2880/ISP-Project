@@ -1,0 +1,23 @@
+{
+    log {
+        level INFO
+    }
+}
+
+:80 {
+    bind web-server-2.gponlab.local
+    
+    root * /var/www/gponlab
+    file_server
+    
+    handle /health {
+        respond "OK - web2 healthy" 200
+    }
+    
+    log {
+        output file /var/log/caddy/web2-access.log {
+            roll_size 10mb
+            roll_keep 5
+        }
+    }
+}

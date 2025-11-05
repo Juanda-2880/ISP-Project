@@ -114,7 +114,7 @@ sequenceDiagram
 
 ### Paquetes del Sistema
 
-```shell
+```bash
 sudo apt update && sudo apt upgrade -y
 sudo apt install -y curl wget git net-tools
 ```
@@ -479,7 +479,7 @@ Ver archivo: `Caddyfile-lb`
 www.gponlab.local {
     tls internal
     encode zstd gzip
-    reverse_proxy http://web-server-1.gponlab.local:80 http://web-server-2.gponlab.local:80 {
+    reverse_proxy http://192.168.50.10:80 http://192.168.50.11:80 {
         ...
     }
 }
@@ -493,9 +493,8 @@ www.gponlab.local {
 
 **Configuración del Reverse Proxy:**
 
-- **Backends**: `http://web-server-1.gponlab.local:80` y `http://web-server-2.gponlab.local:80`
-  - Usa HTTP (no HTTPS) para comunicación interna
-  - Resuelve nombres mediante DNS configurado
+- **Backends**: `http://192.168.50.10:80` y `http://192.168.50.11:80`
+  - Usa HTTP para comunicación interna
 
 - **`lb_policy round_robin`**: Algoritmo de balanceo
   - Distribuye requests de forma circular entre backends
@@ -732,4 +731,5 @@ curl http://localhost/health
 4. Click en el primer request
 5. En "Headers", buscar "Protocol"
 6. Debería mostrar `h3` o `HTTP/3`
+
 

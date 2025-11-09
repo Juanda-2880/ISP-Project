@@ -16,7 +16,7 @@
     }
 
     log {
-        output file /var/log/caddy/web2-access.log {
+        output file /var/log/caddy/web1-access.log {
             roll_size 10mb
             roll_keep 5
         }

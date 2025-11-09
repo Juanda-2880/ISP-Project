@@ -16,7 +16,7 @@ alojan el contenido del sitio en cuestión.
 
 Por otra parte, un proxy inverso (reverse proxy) actúa como intermediario entre los clientes y los servidores backend.
 En lugar de que los clientes accedan directamente a cada servidor web, el proxy inverso (_Load Balancer_) recibe todas las solicitudes,
-la distribuye entre los servidores displonibles y devuelve las respuestas al cliente. Esto permite:
+la distribuye entre los servidores disponibles y devuelve las respuestas al cliente. Esto permite:
 
  - Mejorar la disponibilidad en terminos de _failover_ si un servidor falla.
  - Incrementar el rendimiento distribuyendo carga entre varios servidores.
@@ -44,13 +44,13 @@ graph TB
     end
     
     subgraph "VLAN 50 - Servicios Web"
-        LB[Load Balancer<br/>192.168.50.20<br/>lb.gponlab.local]
-        WEB1[Web Server 1<br/>192.168.50.10<br/>web-server-1.gponlab.local]
-        WEB2[Web Server 2<br/>192.168.50.11<br/>web-server-2.gponlab.local]
+        LB[Load Balancer<br/>192.168.50.20<br/>2001:db8:50::20<br/>lb.gponlab.local]
+        WEB1[Web Server 1<br/>192.168.50.10<br/>2001:db8:50::10<br/>web-server-1.gponlab.local]
+        WEB2[Web Server 2<br/>192.168.50.11<br/>2001:db8:50::11<br/>web-server-2.gponlab.local]
     end
     
     subgraph "VLAN 20 - Servicios Core"
-        DNS[DNS Server<br/>192.168.20.20<br/>dns1.gponlab.local]
+        DNS[DNS Server<br/>192.168.20.20<br/>2001:db8:20::20<br/>dns1.gponlab.local]
     end
     
     C1 -->|HTTPS/HTTP3| LB
@@ -272,32 +272,6 @@ sudo hostnamectl set-hostname web-server-1.gponlab.local
 sudo hostnamectl set-hostname web-server-2.gponlab.local
 ```
 
-### Archivo /etc/hosts
-
-Configurar en las 3 máquinas para resolución local:
-
-```shell
-sudo nano /etc/hosts
-```
-
-Contenido:
-
-```
-127.0.0.1 localhost
-::1 localhost
-
-# VLAN 50 - Web Services
-192.168.50.20 lb.gponlab.local lb
-192.168.50.10 web-server-1.gponlab.local web-server-1
-192.168.50.11 web-server-2.gponlab.local web-server-2
-
-2001:db8:50::20 lb.gponlab.local
-2001:db8:50::10 web-server-1.gponlab.local
-2001:db8:50::11 web-server-2.gponlab.local
-
-# DNS
-192.168.20.20 dns1.gponlab.local dns1
-```
 
 ### Verificación de Conectividad
 
@@ -377,7 +351,6 @@ Ver archivo: `Caddyfile-web1`
   - `log { level INFO }`: Nivel de logging informativo
   
 - **Bloque `:80`**: Escucha en puerto 80 (HTTP)
-  - `bind web-server-1.gponlab.local`: Se asocia al hostname específico
   - `root * /var/www/gponlab`: Directorio raíz del sitio web
   - `file_server`: Habilita el servidor de archivos estáticos
   
@@ -400,7 +373,6 @@ sudo nano /etc/caddy/Caddyfile
 Ver archivo: `Caddyfile-web2`
 
 La configuración es idéntica a Web Server 1, cambiando solo:
-- El hostname en `bind`
 - El mensaje de respuesta en `/health`
 - La ruta del log
 
@@ -479,7 +451,7 @@ Ver archivo: `Caddyfile-lb`
 www.gponlab.local {
     tls internal
     encode zstd gzip
-    reverse_proxy http://192.168.50.10:80 http://192.168.50.11:80 {
+    reverse_proxy http://... http:// http://[...] http://[...] {
         ...
     }
 }
@@ -493,7 +465,7 @@ www.gponlab.local {
 
 **Configuración del Reverse Proxy:**
 
-- **Backends**: `http://192.168.50.10:80` y `http://192.168.50.11:80`
+- **Backends**: 
   - Usa HTTP para comunicación interna
 
 - **`lb_policy round_robin`**: Algoritmo de balanceo
@@ -731,5 +703,6 @@ curl http://localhost/health
 4. Click en el primer request
 5. En "Headers", buscar "Protocol"
 6. Debería mostrar `h3` o `HTTP/3`
+
 
 

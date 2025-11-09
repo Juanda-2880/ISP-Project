@@ -43,7 +43,7 @@ Cada dirección representa múltiples servidores físicos que rotan automáticam
 graph TB
     POOL["NTP Pools Públicos<br/>south-america.pool.ntp.org"]
 
-    CHRONY["Servidor Chrony<br/>192.168.20.60:123/UDP<br/>VLAN 20 - Estrato 3"]
+    CHRONY["Servidor Chrony<br/>192.168.20.60:123/UDP<br/>[2001:db8:20::60]:123/UDP<br/>VLAN 20 - Estrato 3"]
 
     DispositivoServidor["Dispositivo o Servidor<br/>Cliente NTP"]
     POOL -->|Sincronización Upstream| CHRONY
@@ -102,21 +102,19 @@ Contenido del archivo `00-installer-config.yaml`:
 ```yaml
 network:
   version: 2
-  renderer: networkd
-
   ethernets:
     enp0s3:
-      dhcpv4: no
       addresses:
-        - 192.168.20.60/24
-
+        - 192.168.50.10/25
+        - 2001:db8:50::10/64
       routes:
         - to: default
-          via: 192.168.20.1
-
+          via: 192.168.50.1
+        - to: default
+          via: 2001:db8:50::1
       nameservers:
-        addresses:
-          - 192.168.20.20
+        addresses: [192.168.20.20, 2001:db8:20::20]
+        search: [gponlab.local]
 ```
 
 Aplicar y validar configuración:
@@ -157,6 +155,7 @@ pool 1.south-america.pool.ntp.org iburst maxsources 2
 pool 2.co.pool.ntp.org iburst maxsources 2
 
 allow 192.168.0.0/16
+allow 2001:db8::/32
 local stratum 10
 
 keyfile /etc/chrony/chrony.keys
@@ -188,7 +187,7 @@ Este archivo define cómo el demonio `chronyd` se comporta como cliente sincroni
 
 | Directiva           | Contenido                                               | Descripción                                                                                      |
 |---------------------|---------------------------------------------------------|--------------------------------------------------------------------------------------------------|
-| allow             | 192.168.0.0/16                                    | Permite a cualquier cliente con una dirección IP dentro del rango 192.168.0.0 a 192.168.255.255 (toda la red de clase B) consultar y sincronizar su hora con este servidor Chrony. |
+| allow             | 192.168.0.0/16 o 2001:db8::/32                                    | Permite a cualquier cliente con una dirección IP dentro de los rangos establecidos  consultar y sincronizar su hora con este servidor Chrony. |
 
 3. Estrato Local y Archivos de Operación
 
@@ -397,4 +396,5 @@ sudo journalctl -u chrony -n 50 -f
 |----------|--------|-----------|-----------|-----------|
 | NTP | 123 | UDP | Bidireccional | Sincronización de tiempo |
 | NTP | 123 | TCP | Fallback | Sincronización alternativa |
+
 

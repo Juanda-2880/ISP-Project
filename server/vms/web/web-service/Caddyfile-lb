@@ -1,3 +1,4 @@
+# Configuración global
 {
     log {
         level INFO
@@ -5,23 +6,31 @@
     local_certs
 }
 
+# Dominio principal para los clientes
 www.gponlab.local {
+    # Compresión para el rendimiento
+
     tls internal
     encode zstd gzip
-    
-    reverse_proxy http://192.168.50.10:80 http://192.168.50.11:80 {
+
+    # Reverse proxy con balanceo de carga a los backends
+    reverse_proxy {
+        to http://192.168.50.10 http://192.168.50.11 http://[2001:db8:50::10] http://[2001:db8:50::11]
+        # Política de balanceo de carga
         lb_policy round_robin
-        
-        health_uri /health
+
+        # Health checks para verificar que los backends están activos
+        health_uri      /health
         health_interval 5s
-        health_timeout 3s
-        health_status 2xx
-        
+        health_timeout  3s
+
+        # Headers para identificar el origen de la petición (upstream)
         header_up X-Real-IP {remote_host}
         header_up X-Forwarded-For {remote_host}
         header_up X-Forwarded-Proto {scheme}
     }
-    
+
+    # Logging específico para este sitio
     log {
         output file /var/log/caddy/access.log {
             roll_size 10mb

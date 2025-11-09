@@ -3,11 +3,13 @@ network:
   ethernets:
     enp0s3:
       addresses:
-        - 192.168.50.10/25
-        # - 2001:db8:50::10/64
+        - 192.168.50.11/25
+        - 2001:db8:50::11/64
       routes:
         - to: default
           via: 192.168.50.1
+        - to: default
+          via: 2001:db8:50::1
       nameservers:
-        addresses: [192.168.20.20, 1.1.1.1]
+        addresses: [192.168.20.20, 2001:db8:20::20]
         search: [gponlab.local]

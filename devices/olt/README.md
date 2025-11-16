@@ -22,7 +22,7 @@ graph LR
     
     subgraph Infrastructure
         E[Switch Cisco<br/>SG350X-24]
-        F[Router MikroTik<br/>DHCP Server<br/>192.168.100.1]
+        F[Router MikroTikr<br/>192.168.100.1]
     end
     
     A <-->|Traffic| C
@@ -540,4 +540,5 @@ end
 - IEEE 802.1Q VLAN Tagging Standard
 - ITU-T G.984 GPON Recommendations
 - Cisco SG350X Administration Guide
+
 

@@ -1,5 +1,4 @@
-# Documentación de 
-# Infraestructura Red GPON - Prometheus y Grafana
+ # Infraestructura Red GPON - Prometheus y Grafana
 ---
 ## Introducción a Prometheus
 
@@ -628,3 +627,4 @@ Para visualizar métricas del MikroTik en Grafana:
 3. **Panel de identidad**:
    - Tipo: Stat
    - Query: `identity{job="mikrotik-snmp"}`
+

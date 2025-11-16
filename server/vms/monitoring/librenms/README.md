@@ -1,4 +1,4 @@
-# Infraestructura Red GPON - SERVICIO DHCP KEA
+# Infraestructura Red GPON - LibreNMS
 
 ## ¿Qué es LibreNMS?
 
@@ -204,4 +204,5 @@ LibreNMS recopila automáticamente múltiples métricas de cada dispositivo:
 - **Recursos del sistema**: Uso de CPU, memoria RAM, almacenamiento
 - **Sensores**: Temperatura, voltaje, corriente, ventiladores
 - **Protocolos de routing**: Estados de vecindades OSPF, BGP, rutas
+
 

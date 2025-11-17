@@ -1,0 +1,16 @@
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    enp0s3:
+      addresses:
+        - 192.168.40.50/24
+        - 2001:db8:40::50/64
+      routes:
+        - to: default
+          via: 192.168.40.1 # Puerta de enlace de la VLAN 40
+        - to: default
+          via: 2001:db8:40::1
+      nameservers:
+        addresses: [192.168.20.20, 2001:db8:20::20] # DNS y uno de respaldo.
+        search: [gponlab.local]

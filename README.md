@@ -1,143 +1,140 @@
 # Proyecto ISP - Infraestructura GPON
 
-## Descripción General
-Implementación de una red GPON (Gigabit Passive Optical Network) para entorno académico, integrando dispositivos físicos y servicios virtualizados en Ubuntu Server. El proyecto incluye segmentación de red mediante VLANs, servicios core de red, monitoreo, calidad de servicio (QoS), y provisión de servicios a clientes finales en una infraestructura con soporte dual-stack IPv4/IPv6.
+## 📖 Descripción General
+Implementación de una red GPON (Gigabit Passive Optical Network) diseñada para un entorno académico, integrando dispositivos físicos de networking y servicios virtualizados sobre Ubuntu Server. 
 
-## Topología de Red
+El proyecto simula un ISP real, abarcando desde la segmentación de red mediante VLANs y servicios core (DNS, DHCP, NTP), hasta el monitoreo avanzado (Observabilidad), calidad de servicio (QoS) y la provisión de "Última Milla" a clientes finales mediante fibra óptica con soporte dual-stack IPv4/IPv6.
 
-![Imgur Image](https://i.imgur.com/I5o7OSE.jpg)
+## 👥 Equipo de Implementación
+
+Este proyecto fue desarrollado colaborativamente, dividiendo la infraestructura en dominios de responsabilidad técnica especializados.
+
+| Integrante | Rol / Dominio Técnico | Responsabilidades Clave | GitHub |
+| :--- | :--- | :--- | :---: |
+| **Juan Camilo Melo López** | **Infraestructura de Red & Web** | Configuración de Routing/Switching (MikroTik, Cisco) y despliegue de Servidores Web/Proxy (Caddy). | [`@Melo088`](https://github.com/Melo088) |
+| **Angela Camila Quitiaquez Diaz** | **QoS & Gestión de Red** | Implementación de calidad de servicio (LibreQoS) y monitoreo de infraestructura física (LibreNMS). | [`@Angdicode`](https://github.com/Angdicode) |
+| **Juan David Pacheco** | **Servicios Core & Observabilidad** | Servicios críticos de red (DHCP, DNS) y stack de métricas visuales (Prometheus, Grafana). | [`@Juanda-2880`](https://github.com/Juanda-2880) |
+| **Esteban Guarin Valencia** | **Servicios de Aplicación** | Sincronización de tiempo precisa (NTP) e infraestructura de correo electrónico seguro (SMTP/IMAP). | [`@Esteban-GV`](https://github.com/Esteban-GV) |
+
+---
+
+## 🗺️ Topología de Red
+
+![Diagrama de Topología](https://i.imgur.com/I5o7OSE.jpg)
 
 ### Dispositivos Físicos
 
 | Dispositivo | Modelo | Función |
 |-------------|--------|---------|
-| Router Externo | MikroTik RB3011UiAS-RM | Conexión a Internet |
-| Router Interno | MikroTik CCR2004-16G-2S+PC | Core del proyecto, VLAN routing |
-| Switch | Cisco SG350X-24 | Distribución con soporte VLAN/trunk |
-| OLT | Huawei EA5800-X2 | Cabecera de red GPON |
-| ONT | Huawei EchoLife EG8145V5 | Terminal óptico de cliente |
-| Splitter | FiberHome Celcia | Divisor óptico pasivo |
-| Servidor | Laptop Ubuntu Server 24.04 | Virtualización de servicios |
+| **Router Externo** | MikroTik RB3011UiAS-RM | Gateway de borde / Conexión a Internet |
+| **Router Interno** | MikroTik CCR2004-16G-2S+PC | Core del ISP, Inter-VLAN routing |
+| **Switch** | Cisco SG350X-24 | Distribución Layer 2/3 con soporte VLAN/trunk |
+| **OLT** | Huawei EA5800-X2 | Cabecera de red GPON |
+| **ONT** | Huawei EchoLife EG8145V5 | Terminal óptico de cliente final |
+| **Splitter** | FiberHome Celcia | Divisor óptico pasivo |
+| **Servidor** | Laptop Ubuntu Server 24.04 | Host de virtualización de servicios |
 
-### Conexiones Físicas
+### Conexiones Físicas Clave
 
-- **Router Externo eth8** → MinisForum Venus LAN2 (QoS)
-- **Router Externo** → **Router Interno eth1**
-- **Router Interno eth2** → **Switch G1/0/2**
-- **Router Interno eth14** → MinisForum Venus LAN1 (QoS)
-- **Switch G1/0/1** → **OLT**
-- **Switch G1/0/10** → **Servidor**
-- **OLT** → **Splitter** → **ONTs** (fibra óptica)
+* **Router Externo (eth8)** → MinisForum Venus LAN2 (QoS Bridge)
+* **Router Externo** → **Router Interno (eth1)**
+* **Router Interno (eth2)** → **Switch (G1/0/2)**
+* **Router Interno (eth14)** → MinisForum Venus LAN1 (QoS Bridge)
+* **Switch (G1/0/1)** → **OLT**
+* **Switch (G1/0/10)** → **Servidor (Virtualización)**
+* **OLT** → **Splitter** → **ONTs** (Fibra óptica)
 
-## Segmentación de Red - VLANs
+---
 
-| VLAN | Nombre | Subred IPv4 | Subred IPv6 | Gateway IPv4 | Gateway IPv6 | Propósito |
-|------|--------|-------------|-------------|--------------|--------------|-----------|
-| 10 | Gestión | 192.168.10.0/24 | 2001:db8:10::/64 | 192.168.10.1 | 2001:db8:10::1 | Administración de dispositivos |
-| 20 | Servicios_Core | 192.168.20.0/24 | 2001:db8:20::/64 | 192.168.20.1 | 2001:db8:20::1 | DHCP, DNS, NTP, Prometheus, Grafana, LibreNMS  |
-| 40 | Email | 192.168.40.0/24 | 2001:db8:40::/64 | 192.168.40.1 | 2001:db8:40::1 | Postfix, Dovecot |
-| 50 | Web | 192.168.50.0/24 | 2001:db8:50::/64 | 192.168.50.1 | 2001:db8:50::1 | Caddy Web y Reverse Proxy |
-| 100 | Clientes_GPON | 192.168.100.0/24 | 2001:db8:100::/64 | 192.168.100.1 | 2001:db8:100::1 | Clientes finales ONTs |
+## 🔢 Segmentación de Red - VLANs
 
-## Servicios Virtualizados
+| VLAN | Nombre | Subred IPv4 | Subred IPv6 | Propósito |
+|:---:|---|---|---|---|
+| **10** | Gestión | `192.168.10.0/24` | `2001:db8:10::/64` | Administración de dispositivos de red |
+| **20** | Servicios_Core | `192.168.20.0/24` | `2001:db8:20::/64` | DHCP, DNS, NTP, Prometheus, Grafana, LibreNMS |
+| **40** | Email | `192.168.40.0/24` | `2001:db8:40::/64` | Servidores de Correo (Postfix/Dovecot) |
+| **50** | Web | `192.168.50.0/24` | `2001:db8:50::/64` | Caddy Web Server y Reverse Proxy |
+| **100** | Clientes_GPON | `192.168.100.0/24` | `2001:db8:100::/64` | Red de Clientes Finales (ONTs) |
 
-Los servicios están implementados en máquinas virtuales sobre Ubuntu Server 24.04 con direccionamiento dual-stack (IPv4/IPv6).
+---
 
-![Imgur Image](https://i.imgur.com/iBXDZ4Q.jpg)
+## ☁️ Servicios Virtualizados
 
-### VLAN 20 - Servicios Core
+Los servicios están containerizados o virtualizados sobre **Ubuntu Server 24.04**, garantizando aislamiento y escalabilidad con direccionamiento dual-stack.
 
-#### Kea DHCP
-Desplegamos Kea DHCP como servidor de asignación automática de direcciones IP para los clientes de la VLAN 100. 
+![Arquitectura de Servicios](https://i.imgur.com/iBXDZ4Q.jpg)
 
-#### BIND9 DNS
-El servicio de resolución de nombres está implementado con BIND9, utilizando dos servidores (primario y secundario).
+### 🔹 VLAN 20 - Servicios Core & Observabilidad
 
-#### Chrony NTP
-Para la sincronización horaria de todos los dispositivos de red implementamos Chrony como servidor NTP. La sincronización precisa del tiempo es fundamental para el correcto funcionamiento de logs, autenticación y correlación de eventos entre los diferentes sistemas que componen la infraestructura.
+* **Kea DHCP:** Motor de asignación dinámica de direcciones de alto rendimiento para la VLAN de clientes (100).
+* **BIND9 DNS:** Resolución de nombres autoritativa y recursiva con arquitectura redundante (Master/Slave).
+* **Chrony NTP:** Servidor de tiempo Stratum local. Fundamental para la coherencia de logs y la seguridad (Kerberos/TLS).
+* **Prometheus:** Base de datos de series temporales que recolecta métricas de salud de toda la infraestructura mediante exporters.
+* **Grafana:** Visualización de datos en tiempo real. Dashboards personalizados para monitorear tráfico, consumo de CPU y latencia de red.
+* **LibreNMS:** Sistema de monitoreo basado en SNMP para el hardware de red (Routers, Switches, OLT), proporcionando mapas de topología y alertas.
+* **LibreQoS:** Gestión de ancho de banda (Shaping/Policing) y priorización de tráfico para garantizar la experiencia de usuario (QoE) en la red GPON.
 
-#### Prometheus
-Prometheus actúa como sistema central de recolección de métricas de todos los servicios y dispositivos. Mediante exporters especializados, captura información de rendimiento, disponibilidad y salud de la infraestructura, almacenándola en su base de datos de series temporales para análisis histórico y detección de anomalías.
+### 🔹 VLAN 40 - Infraestructura de Correo
 
-#### Grafana
-Sobre las métricas recolectadas por Prometheus, Grafana proporciona dashboards interactivos que permiten visualizar el estado de la red en tiempo real. Los paneles personalizados facilitan la identificación rápida de problemas y el análisis de tendencias, mejorando significativamente la capacidad de respuesta del equipo operativo.
+| Servicio | IPv4 | IPv6 | Puertos | Función |
+|---|---|---|---|---|
+| **Dovecot** | `192.168.40.50` | `2001:db8:40::50` | 143/993, 110/995 | Servidor IMAP/POP3 (Recepción) |
+| **Postfix** | `192.168.40.50` | `2001:db8:40::50` | 25, 587, 465 | MTA - Servidor SMTP (Envío) |
 
-#### LibreNMS
-Implementamos LibreNMS para el monitoreo SNMP de los dispositivos de red físicos. Este sistema proporciona mapas de topología, alertas de caídas de enlaces y seguimiento de ancho de banda, etc.
+* **Postfix:** Configurado como MTA con soporte TLS/SSL para envío seguro y relay de correos.
+* **Dovecot:** Permite a los usuarios acceder a sus buzones de forma segura, sincronizando mensajes entre dispositivos.
 
-#### LibreQoS
-Para garantizar calidad de servicio diferenciada, desplegamos LibreQoS como sistema de gestión de ancho de banda y priorización de tráfico. Integrado con los routers MikroTik mediante interfaces dedicadas (MinisForum Venus), permite aplicar políticas de QoS por cliente GPON, asegurando experiencia óptima para servicios críticos.
+### 🔹 VLAN 50 - Web & Proxy
 
-### VLAN 40 - Email
+* **Caddy Web Servers:** Alojamiento de aplicaciones y contenido estático del ISP.
+* **Caddy Reverse Proxy:** Gateway único de entrada que distribuye el tráfico hacia los backends, gestionando automáticamente certificados SSL/HTTPS y balanceo de carga.
 
-| Servicio | IPv4 | IPv6 | Puertos | Descripción |
-|----------|------|------|---------|-------------|
-| Dovecot | 192.168.40.50 | 2001:db8:40::50 | TCP 143/993 (IMAP/S), TCP 110/995 (POP3/S) | Servidor de correo entrante |
-| Postfix | 192.168.40.50 | 2001:db8:40::50 | TCP 25 (SMTP), TCP 587 (submission), TCP 465 (SMTPS) | Servidor de correo saliente |
+---
 
-#### Postfix
-Postfix funciona como MTA (Mail Transfer Agent) encargado del envío y enrutamiento de correo electrónico saliente. Configurado con soporte TLS/SSL, maneja el relay SMTP seguro y la entrega de mensajes, integrándose con sistemas de autenticación para prevenir uso no autorizado del servidor.
+## 🌐 Red GPON (VLAN 100)
 
-#### Dovecot
-Dovecot complementa a Postfix proporcionando servicios de recuperación de correo mediante protocolos IMAP y POP3, ambos con sus variantes seguras. Los usuarios pueden acceder a sus buzones de manera segura desde diferentes clientes, con soporte para múltiples carpetas y sincronización eficiente de mensajes.
+### Arquitectura de Acceso
+La "Última Milla" utiliza fibra óptica pasiva. La OLT **Huawei EA5800-X2** gestiona el tráfico descendente y ascendente hacia las ONTs. El enrutamiento hacia Internet y otras VLANs lo gestiona el **MikroTik CCR2004**.
 
-### VLAN 50 - Web
+### Datos de Conexión Clientes
+* **Protocolo:** IPv4 & IPv6 (Dual Stack)
+* **Rango IPv4:** `192.168.100.100` - `192.168.100.200`
+* **Gateway:** `192.168.100.1`
+* **DNS Primario:** `192.168.20.20`
+* **Asignación:** Dinámica vía Kea DHCP (Relay en Router Interno).
 
-#### Caddy Web Servers
-Implementamos dos instancias de Caddy como servidores web para alojar aplicaciones y contenido del proyecto. Caddy ofrece configuración automática de certificados HTTPS mediante Let's Encrypt.
+---
 
-#### Caddy Reverse Proxy
-El proxy inverso Caddy actúa como punto de entrada único para los servicios web, distribuyendo el tráfico entre los dos servidores web backend. Esta configuración proporciona balanceo de carga básico y permite realizar mantenimiento en servidores individuales sin interrumpir el servicio, mejorando la disponibilidad general.
+## 🛠️ Tecnologías Utilizadas
 
-## Red GPON - VLAN 100
+* **OS/Virtualización:** Ubuntu Server 24.04
+* **Routing & Switching:** MikroTik RouterOS v7, Cisco IOS
+* **Infraestructura Óptica:** Huawei GPON
+* **Core Network:** Kea DHCP, BIND9, Chrony
+* **Web Stack:** Caddy Server
+* **Mail Stack:** Postfix, Dovecot
+* **Observabilidad:** Prometheus, Grafana, LibreNMS
+* **Traffic Shaping:** LibreQoS
 
-### Direccionamiento Clientes
+---
 
-#### IPv4
-- **Rango**: 192.168.100.100 - 192.168.100.200
-- **Gateway**: 192.168.100.1
-- **DNS**: 192.168.20.20, 192.168.20.21
-- **DHCP**: Asignado por Kea (192.168.20.2)
+## 📂 Estructura del Repositorio
 
-### Arquitectura GPON
-
-La red GPON constituye el segmento de acceso del proyecto, conectando clientes finales mediante tecnología de fibra óptica pasiva. Los ONTs Huawei EG8145V5 se conectan a la OLT EA5800-X2 . Los clientes en VLAN 100 obtienen direccionamiento automático y acceso a todos los servicios de red mediante enrutamiento entre VLANs configurado en el router interno MikroTik.
-
-## Tecnologías Utilizadas
-
-- **Virtualización**: en Ubuntu Server
-- **Routing**: MikroTik RouterOS
-- **Switching**: Cisco SG350X
-- **GPON**: Huawei OLT/ONT
-- **DHCP**: Kea DHCP Server (DHCPv4)
-- **DNS**: BIND9
-- **NTP**: Chrony
-- **Web**: Caddy Server
-- **Email**: Postfix + Dovecot
-- **Monitoreo**: LibreNMS, Prometheus, Grafana
-- **QoS**: LibreQoS
-
-## Estructura del Repositorio
-
-```
+```text
 ISP-Project/
 ├── devices/
-│   ├── olt/
-│   │
-│   ├── switch/
-│   │
-│   └── router/
+│   ├── olt/               # Configuraciones Huawei
+│   ├── switch/            # Configuraciones Cisco SG350X
+│   └── router/            # Scripts MikroTik (Firewall, NAT, VLANs)
 │
 ├── server/
 │   └── vms/
-│       ├── dhcp/                    # Kea DHCP
-│       ├── dns/                     # BIND9
-│       ├── ntp/                     # Chrony
-│       ├── monitoreo/               # Grafana & Prometheus, LibreNMS
-│       ├── qos/                     # LibreQoS
-│       ├── smtp/                    # Postfix, Dovecot
-│       └── web/                     # Caddy
+│       ├── dhcp/          # Configuración Kea
+│       ├── dns/           # Zonas y conf BIND9
+│       ├── ntp/           # Chrony.conf
+│       ├── monitoreo/     # Docker-compose para Prometheus/Grafana
+│       ├── qos/           # Reglas LibreQoS
+│       ├── smtp/          # Configuración Postfix/Dovecot
+│       └── web/           # Caddyfiles
 │
 └── README.md
-```
-

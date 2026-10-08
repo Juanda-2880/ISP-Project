@@ -1,11 +1,11 @@
 # Proyecto ISP - Infraestructura GPON
 
-## 📖 Descripción General
+##  Descripción General
 Implementación de una red GPON (Gigabit Passive Optical Network) diseñada para un entorno académico, integrando dispositivos físicos de networking y servicios virtualizados sobre Ubuntu Server. 
 
 El proyecto simula un ISP real, abarcando desde la segmentación de red mediante VLANs y servicios core (DNS, DHCP, NTP), hasta el monitoreo avanzado (Observabilidad), calidad de servicio (QoS) y la provisión de "Última Milla" a clientes finales mediante fibra óptica con soporte dual-stack IPv4/IPv6.
 
-## 👥 Equipo de Implementación
+##  Equipo de Implementación
 
 Este proyecto fue desarrollado colaborativamente, dividiendo la infraestructura en dominios de responsabilidad técnica especializados.
 
@@ -18,7 +18,7 @@ Este proyecto fue desarrollado colaborativamente, dividiendo la infraestructura 
 
 ---
 
-## 🗺️ Topología de Red
+##  Topología de Red
 
 ![Diagrama de Topología](https://i.imgur.com/I5o7OSE.jpg)
 
@@ -46,7 +46,7 @@ Este proyecto fue desarrollado colaborativamente, dividiendo la infraestructura 
 
 ---
 
-## 🔢 Segmentación de Red - VLANs
+##  Segmentación de Red - VLANs
 
 | VLAN | Nombre | Subred IPv4 | Subred IPv6 | Propósito |
 |:---:|---|---|---|---|
@@ -58,13 +58,13 @@ Este proyecto fue desarrollado colaborativamente, dividiendo la infraestructura 
 
 ---
 
-## ☁️ Servicios Virtualizados
+## Servicios Virtualizados
 
 Los servicios están containerizados o virtualizados sobre **Ubuntu Server 24.04**, garantizando aislamiento y escalabilidad con direccionamiento dual-stack.
 
 ![Arquitectura de Servicios](https://i.imgur.com/iBXDZ4Q.jpg)
 
-### 🔹 VLAN 20 - Servicios Core & Observabilidad
+###  VLAN 20 - Servicios Core & Observabilidad
 
 * **Kea DHCP:** Motor de asignación dinámica de direcciones de alto rendimiento para la VLAN de clientes (100).
 * **BIND9 DNS:** Resolución de nombres autoritativa y recursiva con arquitectura redundante (Master/Slave).
@@ -74,7 +74,7 @@ Los servicios están containerizados o virtualizados sobre **Ubuntu Server 24.04
 * **LibreNMS:** Sistema de monitoreo basado en SNMP para el hardware de red (Routers, Switches, OLT), proporcionando mapas de topología y alertas.
 * **LibreQoS:** Gestión de ancho de banda (Shaping/Policing) y priorización de tráfico para garantizar la experiencia de usuario (QoE) en la red GPON.
 
-### 🔹 VLAN 40 - Infraestructura de Correo
+###  VLAN 40 - Infraestructura de Correo
 
 | Servicio | IPv4 | IPv6 | Puertos | Función |
 |---|---|---|---|---|
@@ -84,14 +84,14 @@ Los servicios están containerizados o virtualizados sobre **Ubuntu Server 24.04
 * **Postfix:** Configurado como MTA con soporte TLS/SSL para envío seguro y relay de correos.
 * **Dovecot:** Permite a los usuarios acceder a sus buzones de forma segura, sincronizando mensajes entre dispositivos.
 
-### 🔹 VLAN 50 - Web & Proxy
+###  VLAN 50 - Web & Proxy
 
 * **Caddy Web Servers:** Alojamiento de aplicaciones y contenido estático del ISP.
 * **Caddy Reverse Proxy:** Gateway único de entrada que distribuye el tráfico hacia los backends, gestionando automáticamente certificados SSL/HTTPS y balanceo de carga.
 
 ---
 
-## 🌐 Red GPON (VLAN 100)
+##  Red GPON (VLAN 100)
 
 ### Arquitectura de Acceso
 La "Última Milla" utiliza fibra óptica pasiva. La OLT **Huawei EA5800-X2** gestiona el tráfico descendente y ascendente hacia las ONTs. El enrutamiento hacia Internet y otras VLANs lo gestiona el **MikroTik CCR2004**.
@@ -105,7 +105,7 @@ La "Última Milla" utiliza fibra óptica pasiva. La OLT **Huawei EA5800-X2** ges
 
 ---
 
-## 🛠️ Tecnologías Utilizadas
+##  Tecnologías Utilizadas
 
 * **OS/Virtualización:** Ubuntu Server 24.04
 * **Routing & Switching:** MikroTik RouterOS v7, Cisco IOS
@@ -118,7 +118,7 @@ La "Última Milla" utiliza fibra óptica pasiva. La OLT **Huawei EA5800-X2** ges
 
 ---
 
-## 📂 Estructura del Repositorio
+##  Estructura del Repositorio
 
 ```text
 ISP-Project/
